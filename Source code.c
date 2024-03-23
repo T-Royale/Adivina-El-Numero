@@ -2,7 +2,7 @@
 #include<stdlib.h>
 #include<windows.h>
 #include<time.h>
-
+#include<stdbool.h>
 //Mensajes largos//
 #define TituloJuego "<<<Adivina un numero>>>\n1-Jugar\n2-Opciones\n"
 #define Niveles "===Elige el Nivel===\n1-Facil: Del 1 al 15\n2-Normal: Del 1 al 50\n3-Tryhard: Del 1 al 100\n4-Partida personalizada\n5-Salir\n"
@@ -17,6 +17,7 @@ int NivelElegido;       //Nivel elegido por el usuario (1-3)
 int Puntos;             //Puntos conseguidos en esa partida
 int MayorAcierto;       //Numero elegido mas cercano al correcto, se usa para dar los puntos al final en caso de no acertarlo
 int NumeroRandom;       //Numero elegido aleatoriamente por el programa
+bool JugarOtra = TRUE;     //Esta variable cambiará a false cuando no se desee jugar otra partida
 //Array que guarda la puntuación máxima en cada nivel//
 int Records[3] = {0};
 #define RecordFacil Records[0]
@@ -46,9 +47,19 @@ void ResetRecord(){     //Asigna un valor de 0 a los records de todos los nivele
     system("cls");
     FILE *SaveRecord = fopen ("Save.txt","w");
     for (int i = 0; i == 2; i++){
-        fprintf(SaveRecord, "%x", "0");
+        fprintf(SaveRecord, "%s", "0");
     }
     fclose(SaveRecord);
+}
+void CerrarJuego() {
+    char a;
+    Sleep(100);
+    printf("Salir del juego\n[S/N]\n");
+    scanf("%c", &a);
+    a = tolower(a);
+    if (a == 's') {
+        JugarOtra = FALSE;
+    }
 }
 void Opciones(){        //Muestra las opciones posibles y hace su respectiva acción//
     while(1){
@@ -130,14 +141,13 @@ void InicioJuego() {
 int main() {
     ReadRecord();
     srand(time(NULL));
-    JugarPartida:
-    while(1){
+    while(JugarOtra) {
         NumeroElegido = 0;
         Bienvenido();
         EligeNivel();
         intentos = 5;
         InicioJuego();
-        while(intentos > 0) {
+        while(NumeroRandom != NumeroElegido && intentos > 0) {
             system("cls");
             printf("Elige un numero:\n");
             scanf("%d", &NumeroElegido);
@@ -148,10 +158,11 @@ int main() {
                 scanf("%d", &NumeroElegido);
                 while (getchar() != '\n');
             }
-            //Calcula el numero mas cercano al generado aleatoriamente//
+            //Calcula el numero elegido anteriormente mas cercano al generado aleatoriamente//
             if (abs(MayorAcierto-NumeroRandom) > abs(NumeroElegido-NumeroRandom)) { 
                 MayorAcierto = NumeroElegido;
             }
+            //Otorga una puntuación en función a lo cerca que esta el numero adivinado del correcto//
             if (NumeroElegido < NumeroRandom) {
                 printf("Te has quedado corto\n");
                 Puntos = Puntos + 2*(NumeroRandom - NumeroElegido);
@@ -160,32 +171,24 @@ int main() {
                 printf("Te has pasado\n");
                 Puntos = Puntos + 2*(NumeroElegido - NumeroRandom);
             }
-            else if (NumeroElegido==NumeroRandom) {
-                printf("LO HAS CLAVADO\n");
-                system("color 21");
-                Puntos = Puntos + 100 + (intentos * 25);
-                printf("Has conseguido %d puntos\n", Puntos);
-                if (Puntos > Records[NivelElegido]){
-                    Records[NivelElegido-1] = Puntos;
-                    WriteRecord();
-                }
-                printf("Quieres salir del juego\nS/N\n");
-                while(getchar() !='\n');
-                if (getchar() == 'N' || getchar() == 'n') {
-                    system("taskkill /F /IM cmd.exe");
-                    break;
-                }
-                else{
-                    break;
-                }
-            }  
             intentos--;
             Sleep(100);
             printf("Te quedan %d intentos\n", intentos);
             Sleep(100);
             system("pause");
         }
-        if (intentos == 0) {
+        if (NumeroElegido==NumeroRandom) {
+            printf("LO HAS CLAVADO\n");
+            system("color 21");
+            Puntos = Puntos + 100 + (intentos * 25);
+            printf("Has conseguido %d puntos\n", Puntos);
+            if (Puntos > Records[NivelElegido]){
+                Records[NivelElegido-1] = Puntos;
+                   WriteRecord();
+            }
+            CerrarJuego();
+        }
+        else if (intentos == 0) {
             printf("Te has quedado sin intentos\n :(\n");
             system("color 60");
             printf("El numero era el %d\n", NumeroRandom);
@@ -193,21 +196,9 @@ int main() {
             printf("Has estado cerca con el %d\n", MayorAcierto);
             Puntos = Puntos+(10-abs(MayorAcierto-NumeroRandom));
             printf("Has conseguido %d puntos\n", Puntos);
-            Sleep(100);
-            printf("salir del juego\nS/N\n");
-            if (getchar() == 'N' || getchar() == 'n') {
-                system("taskkill /F /IM cmd.exe");
-                break;
-            }
-            else{
-                return;
-            }
-            break;
+            CerrarJuego();
         }
     }
+    system("pause");
     return 0;
 }
-
-
-//Notas:
-//Arreglar funcion de salir del juego.
