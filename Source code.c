@@ -25,16 +25,20 @@ int Records[3] = {0};
 #define RecordTryhard Records[2]
 //Funciones de records//
 void WriteRecord(){     //Escribirlo en el archivo de guardado//
+    char WriteHex[10];
     FILE *SaveRecord = fopen("Save.txt", "w");
     for (int Y = 0; Y <= 2; Y++) {
-        fprintf(SaveRecord, "%d\n", Records[Y]);
+        sprintf(WriteHex, "%x", Records[Y]);
+        fprintf(SaveRecord, "%s\n", WriteHex);
     }
     fclose(SaveRecord);
 }
 void ReadRecord(){      //Leer los datos del archivo de guardado y asignarlos a sus variables//
+    char ReadHex[10];
     FILE *SaveRecord = fopen("Save.txt", "r");
     for (int i = 0; i < 3; i++) {
-        fscanf(SaveRecord, "%d", &Records[i]);
+        fscanf(SaveRecord, "%x", &ReadHex);
+        sscanf(ReadHex, "%s\n", &Records[i]);
     }
     fclose(SaveRecord);
 }
