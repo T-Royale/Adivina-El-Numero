@@ -1,23 +1,28 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<stddef.h>
 #include<windows.h>
 #include<time.h>
 #include<stdbool.h>
+#include<cdecode.h>
+#include<cencode.h>
 //Mensajes largos//
 #define TituloJuego "<<<Adivina un numero>>>\n1-Jugar\n2-Opciones\n"
 #define Niveles "===Elige el Nivel===\n1-Facil: Del 1 al 15\n2-Normal: Del 1 al 50\n3-Tryhard: Del 1 al 100\n4-Partida personalizada\n5-Salir\n"
 #define OpcionesPosibles "===OPCIONES===\n1-Ver record\n2-Resetear record\n3-Elegir Nivel\n"
 //Variables de rangos de elección//
+//hola//
 int MinimoRango = 1;
 int MaximoRango = 15;
 //===Variables de juego===//
-int intentos;      //Numero de intentos
+int intentos;           //Numero de intentos
 int NumeroElegido = 0;  //Numero elegido por el usuario
 int NivelElegido;       //Nivel elegido por el usuario (1-3)
 int Puntos;             //Puntos conseguidos en esa partida
 int MayorAcierto;       //Numero elegido mas cercano al correcto, se usa para dar los puntos al final en caso de no acertarlo
 int NumeroRandom;       //Numero elegido aleatoriamente por el programa
-bool JugarOtra = TRUE;     //Esta variable cambiará a false cuando no se desee jugar otra partida
+bool JugarOtra = TRUE;  //Esta variable cambiará a false cuando no se desee jugar otra partida
+char Buffer;            //Guardará cada elemento codificado o decodificado antes de imprimirlo en el archivo
 //Array que guarda la puntuación máxima en cada nivel//
 int Records[3] = {0};
 #define RecordFacil Records[0]
@@ -26,15 +31,21 @@ int Records[3] = {0};
 //Funciones de records//
 void WriteRecord(){     //Escribirlo en el archivo de guardado//
     FILE *SaveRecord = fopen("Save.txt", "w");
+    base64_encodestate state;
+    base64_init_encodestate(&state);
     for (int Y = 0; Y <= 2; Y++) {
-        fprintf(SaveRecord, "%d\n", Records[Y]);
+        base64_encode_block(Records[Y], 5, Buffer, &state);
+        fprintf(SaveRecord, "%s\n", Buffer);
     }
     fclose(SaveRecord);
 }
 void ReadRecord(){      //Leer los datos del archivo de guardado y asignarlos a sus variables//
     FILE *SaveRecord = fopen("Save.txt", "r");
+    base64_decodestate state;
+    base64_init_decodestate(&state);
     for (int i = 0; i < 3; i++) {
-        fscanf(SaveRecord, "%d", &Records[i]);
+        fscanf(SaveRecord, "%d", &Buffer);
+        base64_decode_block(&Buffer, 5, Records[i], &state);
     }
     fclose(SaveRecord);
 }

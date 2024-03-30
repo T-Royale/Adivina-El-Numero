@@ -1,3 +1,8 @@
 {
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "time.h": "c",
+        "windows.h": "c",
+        "cdecode.h": "c"
+    }
 }
