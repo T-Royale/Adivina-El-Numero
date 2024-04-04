@@ -3,6 +3,8 @@
     "files.associations": {
         "time.h": "c",
         "windows.h": "c",
-        "cdecode.h": "c"
+        "cdecode.h": "c",
+        "cencode.h": "c",
+        "stdio.h": "c"
     }
 }
