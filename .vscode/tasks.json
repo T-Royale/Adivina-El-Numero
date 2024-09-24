@@ -9,7 +9,11 @@
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-L", "C:\\Users\\teo\\OneDrive\\Documentos\\Curso C\\Librerias\\libb64-2.0.0.1\\",
+                "-I", "C:\\Users\\teo\\OneDrive\\Documentos\\Curso C\\Librerias\\libb64-2.0.0.1\\include\\b64\\",
+                "-b64"
+
             ],
             "options": {
                 "cwd": "${fileDirname}"
@@ -25,3 +29,4 @@
         }
     ],
     "version": "2.0.0"
+}

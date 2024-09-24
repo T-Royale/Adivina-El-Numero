@@ -1,11 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stddef.h>
-#include<windows.h>
 #include<time.h>
 #include<stdbool.h>
-#include<cencode.h>
-#include<cdecode.h>
 //Mensajes largos//
 #define TituloJuego "<<<Adivina un numero>>>\n1-Jugar\n2-Opciones\n"
 #define Niveles "===Elige el Nivel===\n1-Facil: Del 1 al 15\n2-Normal: Del 1 al 50\n3-Tryhard: Del 1 al 100\n4-Partida personalizada\n5-Salir\n"
@@ -21,7 +18,7 @@ int NivelElegido;       //Nivel elegido por el usuario (1-3)
 int Puntos;             //Puntos conseguidos en esa partida
 int MayorAcierto;       //Numero elegido mas cercano al correcto, se usa para dar los puntos al final en caso de no acertarlo
 int NumeroRandom;       //Numero elegido aleatoriamente por el programa
-bool JugarOtra = TRUE;  //Esta variable cambiará a false cuando no se desee jugar otra partida
+bool JugarOtra = true;  //Esta variable cambiará a false cuando no se desee jugar otra partida
 char Buffer[10];            //Guardará cada elemento codificado o decodificado antes de imprimirlo en el archivo
 //Array que guarda la puntuación máxima en cada nivel//
 int Records[3] = {0};
@@ -29,27 +26,29 @@ int Records[3] = {0};
 #define RecordNormal Records[1]
 #define RecordTryhard Records[2]
 //Funciones de records//
-void WriteRecord(){     //Escribirlo en el archivo de guardado//
+void VerifyRecord(){
     FILE *SaveRecord = fopen("Save.txt", "w");
-    base64_encodestate state;
-    base64_init_encodestate(&state);
-    for (int Y = 0; Y <= 2; Y++) {
-        base64_encode_block((const char *)(&Records[Y]), sizeof(int), Buffer, &state);
-        fprintf(SaveRecord, "%s\n", Buffer);
+    if (SaveRecord == NULL) {
+        perror("Error al abrir archivo de guardado");
+    }
+    fclose(SaveRecord); 
+}
+void WriteRecord(){     
+    FILE *SaveRecord = fopen("Save.txt", "w");
+    for (int i = 0; i < 3; i++) {
+        fprintf(SaveRecord, "%d\n", Records[i]); // No necesitas un buffer intermedio
     }
     fclose(SaveRecord);
 }
-void ReadRecord(){      //Leer los datos del archivo de guardado y asignarlos a sus variables//
+void ReadRecord(){      
     FILE *SaveRecord = fopen("Save.txt", "r");
-    base64_decodestate state;
-    base64_init_decodestate(&state);
     for (int i = 0; i < 3; i++) {
-        fscanf(SaveRecord, "%s", &Buffer);                          //Escanear en el buffer
-        base64_decode_block(Buffer, strlen(Buffer), (char *)(&Records[i]), &state);        //Decodificar a decimal
+        fscanf(SaveRecord, "%d", &Records[i]); // Leer enteros directamente
     }
     fclose(SaveRecord);
 }
 void MostrarRecord(){   //Muestra los records en la terminal//
+    ReadRecord();
     system("cls");
     printf("###RECORDS###\nNivel: Facil = %d puntos\nNivel: Normal = %d puntos\nNivel: Tryhard = %d puntos\n", RecordFacil, RecordNormal, RecordTryhard);
     system("pause");
@@ -57,8 +56,8 @@ void MostrarRecord(){   //Muestra los records en la terminal//
 void ResetRecord(){     //Asigna un valor de 0 a los records de todos los niveles//
     system("cls");
     FILE *SaveRecord = fopen ("Save.txt","w");
-    for (int i = 0; i == 2; i++){
-        fprintf(SaveRecord, "%s", "0");
+    for (int i = 0; i < 3; i++){
+        fprintf(SaveRecord, "0\n");
     }
     fclose(SaveRecord);
 }
@@ -69,7 +68,7 @@ void CerrarJuego() {
     scanf("%c", &a);
     a = tolower(a);
     if (a == 's') {
-        JugarOtra = FALSE;
+        JugarOtra = false;
     }
 }
 void Opciones(){        //Muestra las opciones posibles y hace su respectiva acción//
@@ -134,8 +133,7 @@ void EligeNivel(){
         printf("De acuerdo\nEntonces empezemos\n");
         break;
     case 5:
-        system("taskkill /F /IM cmd.exe");
-        system("pause");
+        exit(0);
     default:
         break;
     }
@@ -193,7 +191,7 @@ int main() {
             system("color 21");
             Puntos = Puntos + 100 + (intentos * 25);
             printf("Has conseguido %d puntos\n", Puntos);
-            if (Puntos > Records[NivelElegido]){
+            if (Puntos > Records[NivelElegido-1]){
                 Records[NivelElegido-1] = Puntos;
                    WriteRecord();
             }
