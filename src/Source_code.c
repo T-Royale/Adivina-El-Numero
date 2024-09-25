@@ -8,7 +8,6 @@
 #define Niveles "===Elige el Nivel===\n1-Facil: Del 1 al 15\n2-Normal: Del 1 al 50\n3-Tryhard: Del 1 al 100\n4-Partida personalizada\n5-Salir\n"
 #define OpcionesPosibles "===OPCIONES===\n1-Ver record\n2-Resetear record\n3-Elegir Nivel\n"
 //Variables de rangos de elección//
-//hola//
 int MinimoRango = 1;
 int MaximoRango = 15;
 //===Variables de juego===//
