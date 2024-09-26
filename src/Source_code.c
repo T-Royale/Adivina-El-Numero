@@ -19,30 +19,33 @@ int MayorAcierto;       //Numero elegido mas cercano al correcto, se usa para da
 int NumeroRandom;       //Numero elegido aleatoriamente por el programa
 bool JugarOtra = true;  //Esta variable cambiará a false cuando no se desee jugar otra partida
 char Buffer[10];            //Guardará cada elemento codificado o decodificado antes de imprimirlo en el archivo
+#define save "../ProgramFiles/Save.txt" //Ubicación del archivo de guardado
 //Array que guarda la puntuación máxima en cada nivel//
-int Records[3] = {0};
+int Records[2] = {0};
 #define RecordFacil Records[0]
 #define RecordNormal Records[1]
 #define RecordTryhard Records[2]
 //Funciones de records//
 void VerifyRecord(){
-    FILE *SaveRecord = fopen("Save.txt", "w");
+    FILE *SaveRecord = fopen(save, "w");
     if (SaveRecord == NULL) {
         perror("Error al abrir archivo de guardado");
     }
     fclose(SaveRecord); 
 }
-void WriteRecord(){     
-    FILE *SaveRecord = fopen("Save.txt", "w");
+void WriteRecord(){     //Sobreescribir nuevo record
+    FILE *SaveRecord = fopen(save, "w");
     for (int i = 0; i < 3; i++) {
-        fprintf(SaveRecord, "%d\n", Records[i]); // No necesitas un buffer intermedio
+        fprintf(SaveRecord, "%s", "0x");    
+        //Esto es para que la función ReadRecord detecte el número como hexadecimal y lo pueda cambiar a decimal automaticamente
+        fprintf(SaveRecord, "%x\n", Records[i]);
     }
     fclose(SaveRecord);
 }
 void ReadRecord(){      
-    FILE *SaveRecord = fopen("Save.txt", "r");
+    FILE *SaveRecord = fopen(save, "r");
     for (int i = 0; i < 3; i++) {
-        fscanf(SaveRecord, "%d", &Records[i]); // Leer enteros directamente
+        fscanf(SaveRecord, "%x", &Records[i]); // Leer enteros directamente
     }
     fclose(SaveRecord);
 }
@@ -54,13 +57,14 @@ void MostrarRecord(){   //Muestra los records en la terminal//
 }
 void ResetRecord(){     //Asigna un valor de 0 a los records de todos los niveles//
     system("cls");
-    FILE *SaveRecord = fopen ("Save.txt","w");
+    FILE *SaveRecord = fopen (save,"w");
     for (int i = 0; i < 3; i++){
         fprintf(SaveRecord, "0\n");
     }
     fclose(SaveRecord);
 }
 void CerrarJuego() {
+    WriteRecord();
     char a;
     Sleep(100);
     printf("Salir del juego\n[S/N]\n");
@@ -69,6 +73,7 @@ void CerrarJuego() {
     if (a == 's') {
         JugarOtra = false;
     }
+
 }
 void Opciones(){        //Muestra las opciones posibles y hace su respectiva acción//
     while(1){
@@ -179,6 +184,7 @@ int main() {
                 printf("Te has pasado\n");
                 Puntos = Puntos + 2*(NumeroElegido - NumeroRandom);
             }
+            if(intentos == 0 || NumeroElegido==NumeroRandom) break; //se sale del bucle antes de continuar
             intentos--;
             Sleep(100);
             printf("Te quedan %d intentos\n", intentos);
@@ -207,6 +213,6 @@ int main() {
             CerrarJuego();
         }
     }
-    system("pause");
+    exit(0);
     return 0;
 }
